@@ -5,10 +5,12 @@ A helper for the poker minigame in Tiny Tower Vegas
 python3 poker.py [card1 card2 card3 card4 card5]
 
 # Example
-python poker.py CQ CA SJ H5 D4 (♣Q ♣A ♠J ♥5 ♦4)
+python poker.py CQ CA SJ H5 D4 (i.e., ♣Q ♣A ♠J ♥5 ♦4)
+
 where H=♥ D=♦ C=♣ S=♠
 
 # Outputs
+`
 Initial Hand: ♣Q ♣A ♠J ♥5 ♦4
 Initial Hand Type: No Special Hand Score: 0
 
@@ -52,3 +54,4 @@ Optimal Strategy:
 **Cards to Hold**: ♣Q ♣A
 Expected Score: 8.82
 Score Improvement Over Keeping All: 8.82
+`
