@@ -1,5 +1,5 @@
 # poker
-A helper for the poker minigame in Tiny Tower Vegas
+An exhaustive search for the optimal holding strategy for the poker minigame in Tiny Tower Vegas. 
 
 # Rules
 | Pattern  | Score |
