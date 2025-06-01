@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Poker Strategy Analyzer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .card-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .card {
+      text-align: center;
+    }
+    .card-image {
+      width: 80px;
+      height: 120px;
+      border: 1px solid #ddd;
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    select {
+      width: 100px;
+    }
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f8f8f8;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    td img {
+      width: 40px;
+      height: 60px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Poker Strategy Analyzer</h1>
+  <div class="card-container" id="cards"></div>
+  <button onclick="analyzeStrategy()">Analyze Strategy</button>
+  <div id="result"></div>
+  <script>
+    const suits = { H: "♥", D: "♦", C: "♣", S: "♠" };
+    const values = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+
+    function createCard(index) {
+      const div = document.createElement("div");
+      div.className = "card";
+      const label = document.createElement("div");
+      label.innerText = `Card ${index}`;
+      div.appendChild(label);
+      const select = document.createElement("select");
+      select.id = `card${index}`;
+      select.onchange = () => updateCardImage(index);
+      for (const s in suits) {
+        const group = document.createElement("optgroup");
+        group.label = suits[s];
+        values.forEach(v => {
+          const opt = document.createElement("option");
+          opt.value = s + v;
+          opt.innerText = suits[s] + " " + v;
+          group.appendChild(opt);
+        });
+        select.appendChild(group);
+      }
+      div.appendChild(select);
+      const imgContainer = document.createElement("div");
+      imgContainer.className = "card-image";
+      imgContainer.id = `image-container${index}`;
+      const img = document.createElement("img");
+      img.id = `card-image${index}`;
+      img.style.maxWidth = "100%";
+      img.style.maxHeight = "100%";
+      img.alt = "Card";
+      imgContainer.appendChild(img);
+      div.appendChild(imgContainer);
+      return div;
+    }
+
+    function updateCardImage(i) {
+      const val = document.getElementById(`card${i}`).value;
+      const img = document.getElementById(`card-image${i}`);
+      const container = document.getElementById(`image-container${i}`);
+      if (!val) { img.src = ""; return; }
+      const suit = { H:"Heart", D:"Diamond", C:"Club", S:"Spade" }[val[0]];
+      const value = val.slice(1);
+      img.src = `images/${suit}${value}.gif`;
+      container.style.border = "1px solid #ddd";
+    }
+
+    function initializeCards() {
+      const area = document.getElementById("cards");
+      for (let i = 1; i <= 5; i++) {
+        const card = createCard(i);
+        area.appendChild(card);
+        document.getElementById(`card${i}`).value = "SA";
+        updateCardImage(i);
+      }
+    }
+
+    function analyzeStrategy() {
+      const cards = [];
+      for (let i = 1; i <= 5; i++) {
+        cards.push(document.getElementById(`card${i}`).value);
+      }
+      const cardSet = new Set(cards);
+      const validDeck = new Set(getDeck());
+      if (cards.includes("") || cardSet.size !== 5 || !cards.every(c => validDeck.has(c))) {
+        document.getElementById("result").innerHTML = `<p style="color:red;">Please ensure you selected 5 unique and valid cards.</p>`;
+        return;
+      }
+      document.getElementById("result").innerHTML = `<p style="color:blue;">Analyzing...</p>`;
+      setTimeout(() => {
+        const { scores, bestHold } = poker_analysis(cards);
+        scores.sort((a, b) => b.score - a.score);
+        let html = "<h3>Expected Score Table:</h3><table><tr><th>Cards Held</th><th>Expected Score</th><th>Combinations</th></tr>";
+        scores.forEach(({ hold, score, possibilities }) => {
+          const row = hold.map(i => {
+            const val = cards[i];
+            const suit = { H:"Heart", D:"Diamond", C:"Club", S:"Spade" }[val[0]];
+            const value = val.slice(1);
+            return `<img src="images/${suit}${value}.gif" alt="${val}" />`;
+          }).join(" ");
+          html += `<tr><td>${row || "None"}</td><td>${score.toFixed(2)}</td><td>${possibilities}</td></tr>`;
+        });
+        html += "</table>";
+        document.getElementById("result").innerHTML = html;
+        for (let i = 1; i <= 5; i++) {
+          const box = document.getElementById(`image-container${i}`);
+          box.style.border = bestHold.includes(i - 1) ? "3px solid red" : "1px solid #ddd";
+        }
+      }, 100);
+    }
+
+    function getDeck() {
+      const suits = ["H", "D", "C", "S"];
+      const vals = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+      return suits.flatMap(s => vals.map(v => s + v));
+    }
+
+    function getCombinations(arr, k) {
+      const res = [];
+      function helper(start, path) {
+        if (path.length === k) return res.push([...path]);
+        for (let i = start; i < arr.length; i++) {
+          path.push(arr[i]);
+          helper(i + 1, path);
+          path.pop();
+        }
+      }
+      helper(0, []);
+      return res;
+    }
+
+    function getHandType(hand) {
+      const order = ["A","2","3","4","5","6","7","8","9","10","J","Q","K","A"];
+      const vals = hand.map(c => c.slice(1));
+      const suits = hand.map(c => c[0]);
+      const vCount = Object.fromEntries(vals.map(v => [v, vals.filter(x => x === v).length]));
+      const isFlush = new Set(suits).size === 1;
+      const uniq = [...new Set(vals)].sort((a,b) => order.indexOf(a) - order.indexOf(b));
+      let isStraight = uniq.length >= 5 && order.join(",").includes(uniq.join(","));
+      if (["A","2","3","4","5"].every(v => vals.includes(v))) isStraight = true;
+      if (isFlush && ["10","J","Q","K","A"].every(v => vals.includes(v))) return "Royal Flush";
+      if (isFlush && isStraight) return "Straight Flush";
+      if (Object.values(vCount).includes(4)) return "Four of a Kind";
+      if (Object.values(vCount).includes(3) && Object.values(vCount).includes(2)) return "Full House";
+      if (isFlush) return "Flush";
+      if (isStraight) return "Straight";
+      if (Object.values(vCount).includes(3)) return "Three of a Kind";
+      if (Object.values(vCount).filter(x => x === 2).length >= 2) return "Two Pair";
+      if (Object.entries(vCount).some(([v,c]) => ["J","Q","K","A"].includes(v) && c === 2)) return "Jacks or Better";
+      return "No Special Hand";
+    }
+
+    const SCORE_RULES = {
+      "Royal Flush": 5000,
+      "Straight Flush": 1500,
+      "Four of a Kind": 600,
+      "Full House": 300,
+      "Flush": 200,
+      "Straight": 125,
+      "Three of a Kind": 75,
+      "Two Pair": 40,
+      "Jacks or Better": 10,
+      "No Special Hand": 0
+    };
+
+    function generateAllHolds() {
+      const res = [];
+      for (let i = 0; i < 32; i++) {
+        const hold = [];
+        for (let j = 0; j < 5; j++) if ((i >> j) & 1) hold.push(j);
+        res.push(hold);
+      }
+      return res;
+    }
+
+    function exactExpectedScore(deck, original, holdIdx) {
+      const held = holdIdx.map(i => original[i]);
+      const rest = deck.filter(c => !original.includes(c));
+      const toDraw = 5 - held.length;
+      if (toDraw === 0) return +SCORE_RULES[getHandType(held)].toFixed(2);
+      const combos = getCombinations(rest, toDraw);
+      let total = 0;
+      combos.forEach(draw => {
+        const full = held.concat(draw);
+        total += SCORE_RULES[getHandType(full)];
+      });
+      return +(total / combos.length).toFixed(2);
+    }
+
+    function poker_analysis(cards) {
+      const deck = getDeck();
+      const holds = generateAllHolds();
+      const scores = holds.map(hold => {
+        const score = exactExpectedScore(deck, cards, hold);
+        const possibilities = getCombinations(deck.filter(c => !cards.includes(c)), 5 - hold.length).length;
+        return { hold, score, possibilities };
+      });
+      const best = scores.reduce((a, b) => b.score > a.score ? b : a);
+      return { scores, bestHold: best.hold };
+    }
+
+    document.addEventListener("DOMContentLoaded", initializeCards);
+  </script>
+</body>
+</html>
