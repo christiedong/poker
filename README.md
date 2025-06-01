@@ -58,4 +58,4 @@ Cards to Hold: ♣Q ♣A
 Expected Score: 8.82
 Score Improvement Over Keeping All: 8.82
 ```
-which means that 8.82 points is expected to be earned when ♣Q and ♣A are held, on average.
+It means that holding ♣Q and ♣A is the optimal choice, resulting in an average of 8.82 rewards over all 16,215 possible changes. 
