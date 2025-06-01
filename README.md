@@ -1,6 +1,22 @@
 # poker
 A helper for the poker minigame in Tiny Tower Vegas
 
+# Rules
+```
+Pattern				    Score
+------------------------
+Royal Flush	   		5000 
+Straight Flush	  1500
+Four of a Kind	  600
+Full House		   	300
+Flush			   	    200
+Straight		   	  125
+Three of a Kind   75
+Two Pair		   	  40
+Jacks or Better   10
+No Special Hand   0
+```
+
 # Usage
 ```
 python3 poker.py [card1 card2 card3 card4 card5]
