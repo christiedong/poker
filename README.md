@@ -8,7 +8,7 @@ python3 poker.py [card1 card2 card3 card4 card5]
 
 # Example
 ```
-python poker.py CQ CA SJ H5 D4
+python3 poker.py CQ CA SJ H5 D4
 ```
 i.e., ♣Q ♣A ♠J ♥5 ♦4, where H=♥ D=♦ C=♣ S=♠
 
