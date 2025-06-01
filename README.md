@@ -54,7 +54,8 @@ None                           5.86            1,533,939
 ♣Q ♣A ♠J ♥5 ♦4                 0.00            1              
 
 Optimal Strategy:
-**Cards to Hold**: ♣Q ♣A
+Cards to Hold: ♣Q ♣A
 Expected Score: 8.82
 Score Improvement Over Keeping All: 8.82
 ```
+which means that 8.82 points is expected to be earned when ♣Q and ♣A are held, on average.
